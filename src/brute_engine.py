@@ -1,17 +1,19 @@
 """
-Module 1: Brute-Force Vector Search Engine
-This module implements a naive vector database that stores vectors in memory
-and performs a linear scan (O(n)) for every search query.
+Module 1 & 3: Brute-Force Vector Search Engine with Persistence
+This module implements a naive vector database with disk persistence using pickle.
 """
 
 import numpy as np
 from typing import List, Tuple, Optional
+import pickle
+import os
 
 class BruteForceDB:
     """
     A naive vector database implementation using brute-force search.
     Stores vectors in memory and computes cosine similarity against all vectors
     for every search query. O(n) complexity.
+    Supports saving and loading to/from disk.
     """
     
     def __init__(self):
@@ -84,3 +86,42 @@ class BruteForceDB:
     def get_metadata(self, id: str) -> Optional[str]:
         """Retrieve metadata for a specific vector ID."""
         return self.metadata.get(id, None)
+
+    # ===================== NEW: Persistence Methods (Module 3) =====================
+
+    def save(self, filepath: str = "sidradb_data.pkl") -> None:
+        """
+        Save the current database state to a pickle file on disk.
+        
+        Args:
+            filepath: Path where the .pkl file will be saved (default: sidradb_data.pkl)
+        """
+        # Prepare data to be serialized
+        data = {
+            "vectors": self.vectors,   # dict of id -> numpy array
+            "metadata": self.metadata  # dict of id -> string
+        }
+        with open(filepath, "wb") as f:
+            pickle.dump(data, f)
+        print(f"[Persistence] Database saved to {filepath}")
+
+    def load(self, filepath: str = "sidradb_data.pkl") -> bool:
+        """
+        Load the database state from a pickle file on disk.
+        
+        Args:
+            filepath: Path to the .pkl file to load.
+            
+        Returns:
+            True if file loaded successfully, False if file not found.
+        """
+        if os.path.exists(filepath):
+            with open(filepath, "rb") as f:
+                data = pickle.load(f)
+                self.vectors = data["vectors"]
+                self.metadata = data["metadata"]
+            print(f"[Persistence] Database loaded from {filepath} ({self.size()} vectors)")
+            return True
+        else:
+            print(f"[Persistence] No existing database found at {filepath}. Starting fresh.")
+            return False
