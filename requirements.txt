@@ -1,0 +1,13 @@
+# Core mathematical operations and data handling
+numpy
+
+# Web Framework for REST API
+fastapi
+uvicorn
+
+# AI Model for generating embeddings (Text to Vectors)
+sentence-transformers
+
+# Utilities and testing
+pytest
+pydantic
