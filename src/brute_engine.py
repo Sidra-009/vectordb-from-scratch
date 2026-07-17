@@ -31,7 +31,6 @@ class BruteForceDB:
             vector: List of floats representing the vector/embedding.
             metadata: Optional string (e.g., original text) associated with the vector.
         """
-        # Convert list to numpy array for faster mathematical operations
         self.vectors[id] = np.array(vector)
         self.metadata[id] = metadata
 
@@ -39,17 +38,11 @@ class BruteForceDB:
         """
         Calculate the cosine similarity between two vectors.
         Formula: dot(A, B) / (||A|| * ||B||)
-        
-        Cosine similarity ranges from -1 (opposite) to 1 (identical direction).
-        For text embeddings (which are usually positive), it's often between 0 and 1.
         """
-        # Calculate dot product
         dot_product = np.dot(vec1, vec2)
-        # Calculate magnitudes (norms)
         norm_vec1 = np.linalg.norm(vec1)
         norm_vec2 = np.linalg.norm(vec2)
         
-        # Avoid division by zero (if vector is all zeros)
         if norm_vec1 == 0 or norm_vec2 == 0:
             return 0.0
         
@@ -58,24 +51,14 @@ class BruteForceDB:
     def search(self, query_vector: List[float], top_k: int = 5) -> List[Tuple[str, float]]:
         """
         Find the top_k most similar vectors to the query vector.
-        
-        Args:
-            query_vector: List of floats to search against.
-            top_k: Number of results to return.
-        
-        Returns:
-            List of tuples (id, similarity_score) sorted by similarity descending.
         """
-        # Convert query to numpy array
         query_np = np.array(query_vector)
         results = []
         
-        # Iterate over every vector in the database (This is the Brute-Force part)
         for idx, vec in self.vectors.items():
             sim_score = self._cosine_similarity(query_np, vec)
             results.append((idx, sim_score))
         
-        # Sort by similarity score (highest first) and return top_k
         results.sort(key=lambda x: x[1], reverse=True)
         return results[:top_k]
 
@@ -87,33 +70,23 @@ class BruteForceDB:
         """Retrieve metadata for a specific vector ID."""
         return self.metadata.get(id, None)
 
-    # ===================== NEW: Persistence Methods (Module 3) =====================
+    # ===================== Persistence Methods (Module 3) =====================
 
-    def save(self, filepath: str = "sidradb_data.pkl") -> None:
+    def save(self, filepath: str = "vector_db_data.pkl") -> None:
         """
         Save the current database state to a pickle file on disk.
-        
-        Args:
-            filepath: Path where the .pkl file will be saved (default: sidradb_data.pkl)
         """
-        # Prepare data to be serialized
         data = {
-            "vectors": self.vectors,   # dict of id -> numpy array
-            "metadata": self.metadata  # dict of id -> string
+            "vectors": self.vectors,
+            "metadata": self.metadata
         }
         with open(filepath, "wb") as f:
             pickle.dump(data, f)
         print(f"[Persistence] Database saved to {filepath}")
 
-    def load(self, filepath: str = "sidradb_data.pkl") -> bool:
+    def load(self, filepath: str = "vector_db_data.pkl") -> bool:
         """
         Load the database state from a pickle file on disk.
-        
-        Args:
-            filepath: Path to the .pkl file to load.
-            
-        Returns:
-            True if file loaded successfully, False if file not found.
         """
         if os.path.exists(filepath):
             with open(filepath, "rb") as f:
