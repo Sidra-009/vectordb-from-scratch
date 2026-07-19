@@ -1,0 +1,40 @@
+# Docker Compose configuration to run both Backend and Frontend together.
+# Run with: docker-compose up --build
+
+# version: '3.8'
+
+services:
+  # Backend API service (Python FastAPI)
+  backend:
+    build:
+      context: .            # Builds the Dockerfile in the root folder
+      dockerfile: Dockerfile
+    container_name: vectordb-backend
+    ports:
+      - "8000:8000"         # Maps localhost:8000 to container:8000
+    environment:
+      - HF_HOME=/app/cache  # AI model cache location
+    volumes:
+      - ./cache:/app/cache  # Persist downloaded model locally
+    networks:
+      - vectordb-network
+
+  # Frontend UI service (Next.js)
+  frontend:
+    build:
+      context: ./frontend   # Builds the Dockerfile inside the frontend folder
+      dockerfile: Dockerfile
+    container_name: vectordb-frontend
+    ports:
+      - "3000:3000"         # Maps localhost:3000 to container:3000
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000  # Tells frontend where to find the API (inside Docker network)
+    depends_on:
+      - backend             # Wait for backend to start first
+    networks:
+      - vectordb-network
+
+# Network so both containers can talk to each other
+networks:
+  vectordb-network:
+    driver: bridge

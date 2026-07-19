@@ -2,13 +2,14 @@
 Module 2, 3, 4 & 5: REST API Layer with Text Embedding (AI) Support
 Now supports adding and searching via natural language text!
 """
-
+import os
+# Force Hugging Face to download models inside our project folder
+os.environ["HF_HOME"] = os.path.join(os.getcwd(), "cache")
+os.environ["TRANSFORMERS_CACHE"] = os.path.join(os.getcwd(), "cache")
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Union
 import uvicorn
-import os
-
 # Import engines and embedder
 from src.brute_engine import BruteForceDB
 from src.hnsw_engine import HNSWDB
