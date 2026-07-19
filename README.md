@@ -327,4 +327,3 @@ Distributed under the **MIT License**. See [LICENSE](LICENSE) for more informati
     <a href="https://github.com/Sidra-009">GitHub</a>·
   </sub>
 </div>
-```
