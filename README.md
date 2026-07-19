@@ -1,4 +1,3 @@
-```markdown
 # 🚀 VectorDB: Semantic Search Engine from Scratch
 
 [![Python](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
