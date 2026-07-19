@@ -1,4 +1,4 @@
-# 🚀 VectorDB: Semantic Search Engine from Scratch
+#                              VectorDB: Semantic Search Engine from Scratch
 
 [![Python](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.139+-green.svg)](https://fastapi.tiangolo.com/)
@@ -33,21 +33,6 @@ Most developers use Pinecone or Qdrant, but few understand how they work underne
 | **REST API** | Swagger UI available at `/docs`. |
 | **Production UI** | Next.js frontend with real-time search and progress bars. |
 | **Dockerized** | Run the entire stack with a single command. |
-
----
-
-## 🗺️ System Architecture
-
-```mermaid
-graph TD
-    A[Next.js UI (Port 3000)] --> B[FastAPI Backend (Port 8000)];
-    B --> C[Vector Engine (HNSW / Brute-Force)];
-    C --> D[(Pickle Persistence)];
-    B --> E[AI Embedder (Sentence-Transformers)];
-    E --> F[(Model Cache)];
-    style A fill:#a855f7,stroke:#fff,color:#fff
-    style B fill:#3b82f6,stroke:#fff,color:#fff
-```
 
 ---
 
