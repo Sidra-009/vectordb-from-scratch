@@ -29,18 +29,18 @@
 
 ## 📖 Table of Contents
 
-- [🌟 Why VectorDB?](#-why-vectordb)
-- [✨ Key Features](#-key-features)
-- [📊 Performance Benchmarks](#-performance-benchmarks)
-- [🎯 Use Cases](#-use-cases)
-- [🏗️ System Architecture](#️-system-architecture)
-- [🚀 Quick Start](#-quick-start)
-- [💻 Local Development](#-local-development)
-- [📚 API Reference](#-api-reference)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [🤝 Contributing](#-contributing)
-- [🎯 Roadmap](#-roadmap)
-- [📄 License](#-license)
+- [Why VectorDB?](#-why-vectordb)
+- [Key Features](#-key-features)
+- [Performance Benchmarks](#-performance-benchmarks)
+- [Use Cases](#-use-cases)
+- [System Architecture](#️-system-architecture)
+- [Quick Start](#-quick-start)
+- [Local Development](#-local-development)
+- [API Reference](#-api-reference)
+- [Tech Stack](#️-tech-stack)
+- [Contributing](#-contributing)
+- [Roadmap](#-roadmap)
+- [License](#-license)
 
 ---
 
@@ -54,11 +54,11 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 | Aspect | Description |
 | :--- | :--- |
-| 🎓 **Educational** | Step-by-step code with clear comments. Learn HNSW from scratch. |
-| ⚡ **Production-Ready** | Dockerized, CI/CD ready, with beautiful UI. |
-| 🔬 **Algorithmic** | HNSW graph implemented manually (no black-box libraries). |
-| 🧠 **AI-Powered** | Semantic search using Sentence-Transformers. |
-| 🌐 **Global-Ready** | Works with any language (English, Urdu, Roman Urdu, etc.). |
+| **Educational** | Step-by-step code with clear comments. Learn HNSW from scratch. |
+| **Production-Ready** | Dockerized, CI/CD ready, with beautiful UI. |
+| **Algorithmic** | HNSW graph implemented manually (no black-box libraries). |
+| **AI-Powered** | Semantic search using Sentence-Transformers. |
+| **Global-Ready** | Works with any language (English, Urdu, Roman Urdu, etc.). |
 
 ---
 
@@ -66,20 +66,20 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 <table>
   <tr>
-    <td align="center"><b>🧮 Brute-Force Engine</b><br/>100% accurate cosine similarity search <br/><code>O(n)</code> complexity</td>
-    <td align="center"><b>🚀 HNSW Index</b><br/>Fast approximate search <br/><code>O(log n)</code> using multi-layer graphs</td>
+    <td align="center"><b> Brute-Force Engine</b><br/>100% accurate cosine similarity search <br/><code>O(n)</code> complexity</td>
+    <td align="center"><b> HNSW Index</b><br/>Fast approximate search <br/><code>O(log n)</code> using multi-layer graphs</td>
   </tr>
   <tr>
-    <td align="center"><b>🧠 AI Embeddings</b><br/>Converts text to vectors using <br/><code>all-MiniLM-L6-v2</code></td>
-    <td align="center"><b>💾 Persistence</b><br/>Automatic save/load to disk <br/>using Pickle</td>
+    <td align="center"><b> AI Embeddings</b><br/>Converts text to vectors using <br/><code>all-MiniLM-L6-v2</code></td>
+    <td align="center"><b> Persistence</b><br/>Automatic save/load to disk <br/>using Pickle</td>
   </tr>
   <tr>
-    <td align="center"><b>🌐 REST API</b><br/>Swagger UI available at <br/><code>/docs</code></td>
-    <td align="center"><b>🎨 Production UI</b><br/>Next.js frontend with <br/>glassmorphism design</td>
+    <td align="center"><b> REST API</b><br/>Swagger UI available at <br/><code>/docs</code></td>
+    <td align="center"><b> Production UI</b><br/>Next.js frontend with <br/>glassmorphism design</td>
   </tr>
   <tr>
-    <td align="center"><b>🐳 Dockerized</b><br/>Run entire stack with <br/>one command</td>
-    <td align="center"><b>🔐 Secure</b><br/>Ready for authentication <br/>& rate limiting</td>
+    <td align="center"><b> Dockerized</b><br/>Run entire stack with <br/>one command</td>
+    <td align="center"><b> Secure</b><br/>Ready for authentication <br/>& rate limiting</td>
   </tr>
 </table>
 
@@ -104,12 +104,12 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 | Domain | Application |
 | :--- | :--- |
-| 🤖 **AI Chatbots** | RAG (Retrieval-Augmented Generation) systems |
-| 📚 **Document Search** | Search through PDFs, articles, and books |
-| 🎵 **Recommendations** | Content-based recommendations (movies, music) |
-| 🏥 **Healthcare** | Semantic search in medical records |
-| 📈 **Research** | Academic paper similarity search |
-| 🇵🇰 **Localized** | Roman Urdu & Urdu search for Pakistani applications |
+|  **AI Chatbots** | RAG (Retrieval-Augmented Generation) systems |
+|  **Document Search** | Search through PDFs, articles, and books |
+|  **Recommendations** | Content-based recommendations (movies, music) |
+|  **Healthcare** | Semantic search in medical records |
+|  **Research** | Academic paper similarity search |
+|  **Localized** | Roman Urdu & Urdu search for Pakistani applications |
 
 ---
 
@@ -275,18 +275,18 @@ curl "http://localhost:8000/health"
 
 Contributions are **welcome**! Here's how you can help:
 
-1. 🍴 **Fork** the repository
-2. 🌿 **Create** your feature branch (`git checkout -b feature/AmazingFeature`)
-3. 💻 **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. 📤 **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. 🔄 **Open** a Pull Request
+1.  **Fork** the repository
+2.  **Create** your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
+4.  **Push** to the branch (`git push origin feature/AmazingFeature`)
+5.  **Open** a Pull Request
 
 ### Contribution Ideas
-- 🔧 Add more vector distance metrics (Euclidean, Manhattan)
-- 🗄️ Integrate with PostgreSQL for large-scale data
-- 🔐 Add JWT authentication and rate limiting
-- 📊 Build a comparison dashboard (Brute-Force vs HNSW)
-- 🌍 Add support for more languages (Urdu, Arabic)
+-  Add more vector distance metrics (Euclidean, Manhattan)
+-  Integrate with PostgreSQL for large-scale data
+-  Add JWT authentication and rate limiting
+-  Build a comparison dashboard (Brute-Force vs HNSW)
+-  Add support for more languages (Urdu, Arabic)
 
 ---
 
@@ -324,11 +324,7 @@ Distributed under the **MIT License**. See [LICENSE](LICENSE) for more informati
   <sub>Built with by <strong>Sidra</strong></sub>
   <br />
   <sub>
-    <a href="https://github.com/Sidra-009">GitHub</a> ·
-    <a href="https://linkedin.com/in/yourprofile">LinkedIn</a> ·
-    <a href="https://twitter.com/yourhandle">Twitter</a>
+    <a href="https://github.com/Sidra-009">GitHub</a>·
   </sub>
 </div>
 ```
-
-Ab aap ka README **"World-Class"** lag raha hai! 🚀
