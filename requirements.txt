@@ -11,3 +11,6 @@ sentence-transformers
 # Utilities and testing
 pytest
 pydantic
+
+matplotlib
+# faiss-cpu  # optional - uncomment if you want FAISS benchmarks
