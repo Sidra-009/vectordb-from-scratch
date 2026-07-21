@@ -1,4 +1,7 @@
-# main
+"""
+VectorDB API - FastAPI backend with HNSW indexing and AI embeddings.
+"""
+
 import os
 os.environ["HF_HOME"] = os.path.join(os.getcwd(), "cache")
 os.environ["TRANSFORMERS_CACHE"] = os.path.join(os.getcwd(), "cache")
@@ -36,16 +39,16 @@ app.add_middleware(
 # engine
 if USE_HNSW:
     db = HNSWDB(M=16, ef_construction=200, ef_search=50)
-    DB_FILE = "hnsw_db_data.pkl"
+    DB_FILE = "hnsw_db_data"
     ENGINE_NAME = "HNSW (Fast Approximate)"
 else:
     db = BruteForceDB()
-    DB_FILE = "vector_db_data.pkl"
+    DB_FILE = "vector_db_data"
     ENGINE_NAME = "Brute-Force (Accurate)"
 
 embedder = None
 
-# startup/shutdown
+# startup
 @app.on_event("startup")
 async def startup_event():
     global embedder
@@ -54,6 +57,7 @@ async def startup_event():
     print(f"[System] Using engine: {ENGINE_NAME}")
     print(f"[System] AI Model ready: {MODEL_NAME} (Dimension: {embedder.dimension})")
 
+# shutdown
 @app.on_event("shutdown")
 async def shutdown_event():
     db.save(DB_FILE)
@@ -68,6 +72,7 @@ class VectorAddRequest(BaseModel):
 class VectorSearchRequest(BaseModel):
     vector: List[float]
     top_k: Optional[int] = 5
+    filter_metadata: Optional[str] = None
 
 class TextAddRequest(BaseModel):
     text: str
@@ -77,6 +82,7 @@ class TextAddRequest(BaseModel):
 class TextSearchRequest(BaseModel):
     text: str
     top_k: Optional[int] = 5
+    filter_metadata: Optional[str] = None
 
 class SearchResultItem(BaseModel):
     id: Union[str, int]
@@ -134,6 +140,16 @@ async def search_vector(request: VectorSearchRequest):
         return SearchResponse(results=[], total_vectors=0, engine=ENGINE_NAME)
     try:
         raw_results = db.search(request.vector, request.top_k)
+
+        # post-filtering
+        if request.filter_metadata:
+            filtered = []
+            for idx, score in raw_results:
+                meta = db.get_metadata(idx)
+                if meta and request.filter_metadata.lower() in meta.lower():
+                    filtered.append((idx, score))
+            raw_results = filtered
+
         formatted_results = []
         for idx, score in raw_results:
             meta = db.get_metadata(idx)
@@ -188,6 +204,16 @@ async def search_text(request: TextSearchRequest):
     try:
         query_vector = embedder.encode(request.text)
         raw_results = db.search(query_vector, request.top_k)
+
+        # post-filtering
+        if request.filter_metadata:
+            filtered = []
+            for idx, score in raw_results:
+                meta = db.get_metadata(idx)
+                if meta and request.filter_metadata.lower() in meta.lower():
+                    filtered.append((idx, score))
+            raw_results = filtered
+
         formatted_results = []
         for idx, score in raw_results:
             meta = db.get_metadata(idx)
