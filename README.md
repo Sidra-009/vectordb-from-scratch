@@ -54,11 +54,11 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 | Aspect | Description |
 | :--- | :--- |
-| 🎓 **Educational** | Step-by-step code with clear comments. Learn HNSW from scratch. |
-| ⚡ **Production-Ready** | Dockerized, CI/CD ready, with beautiful UI. |
-| 🔬 **Algorithmic** | HNSW graph implemented manually (no black-box libraries). |
-| 🧠 **AI-Powered** | Semantic search using Sentence-Transformers. |
-| 🌐 **Global-Ready** | Works with any language (English, Urdu, Roman Urdu, etc.). |
+| **Educational** | Step-by-step code with clear comments. Learn HNSW from scratch. |
+| **Production-Ready** | Dockerized, CI/CD ready, with beautiful UI. |
+| **Algorithmic** | HNSW graph implemented manually (no black-box libraries). |
+| **AI-Powered** | Semantic search using Sentence-Transformers. |
+| **Global-Ready** | Works with any language (English, Urdu, Roman Urdu, etc.). |
 
 ---
 
@@ -66,20 +66,20 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 <table>
   <tr>
-    <td align="center"><b>🧮 Brute-Force Engine</b><br/>100% accurate cosine similarity search <br/><code>O(n)</code> complexity</td>
-    <td align="center"><b>🚀 HNSW Index</b><br/>Fast approximate search <br/><code>O(log n)</code> using multi-layer graphs</td>
+    <td align="center"><b> Brute-Force Engine</b><br/>100% accurate cosine similarity search <br/><code>O(n)</code> complexity</td>
+    <td align="center"><b> HNSW Index</b><br/>Fast approximate search <br/><code>O(log n)</code> using multi-layer graphs</td>
   </tr>
   <tr>
-    <td align="center"><b>🧠 AI Embeddings</b><br/>Converts text to vectors using <br/><code>all-MiniLM-L6-v2</code></td>
-    <td align="center"><b>💾 Persistence</b><br/>Automatic save/load to disk <br/>using JSON + NPY with checksums</td>
+    <td align="center"><b> AI Embeddings</b><br/>Converts text to vectors using <br/><code>all-MiniLM-L6-v2</code></td>
+    <td align="center"><b> Persistence</b><br/>Automatic save/load to disk <br/>using Pickle</td>
   </tr>
   <tr>
-    <td align="center"><b>🌐 REST API</b><br/>Swagger UI available at <br/><code>/docs</code></td>
-    <td align="center"><b>🎨 Production UI</b><br/>Next.js frontend with <br/>glassmorphism design</td>
+    <td align="center"><b> REST API</b><br/>Swagger UI available at <br/><code>/docs</code></td>
+    <td align="center"><b> Production UI</b><br/>Next.js frontend with <br/>glassmorphism design</td>
   </tr>
   <tr>
-    <td align="center"><b>🐳 Dockerized</b><br/>Run entire stack with <br/>one command</td>
-    <td align="center"><b>🔍 Metadata Filtering</b><br/>Post-filter search results <br/>by metadata</td>
+    <td align="center"><b> Dockerized</b><br/>Run entire stack with <br/>one command</td>
+    <td align="center"><b> Secure</b><br/>Ready for authentication <br/>& rate limiting</td>
   </tr>
 </table>
 
@@ -104,12 +104,12 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 | Domain | Application |
 | :--- | :--- |
-| 🤖 **AI Chatbots** | RAG (Retrieval-Augmented Generation) systems |
-| 📚 **Document Search** | Search through PDFs, articles, and books |
-| 🎵 **Recommendations** | Content-based recommendations (movies, music) |
-| 🏥 **Healthcare** | Semantic search in medical records |
-| 📈 **Research** | Academic paper similarity search |
-| 🇵🇰 **Localized** | Roman Urdu & Urdu search for Pakistani applications |
+|  **AI Chatbots** | RAG (Retrieval-Augmented Generation) systems |
+|  **Document Search** | Search through PDFs, articles, and books |
+|  **Recommendations** | Content-based recommendations (movies, music) |
+|  **Healthcare** | Semantic search in medical records |
+|  **Research** | Academic paper similarity search |
+|  **Localized** | Roman Urdu & Urdu search for Pakistani applications |
 
 ---
 
@@ -132,7 +132,7 @@ graph LR
     end
 
     subgraph Storage
-        F[(JSON + NPY<br/>vector_db_data)]
+        F[(Pickle File<br/>vector_db_data.pkl)]
         G[(Model Cache<br/>~90MB)]
     end
 
@@ -143,14 +143,21 @@ graph LR
     C --> E
     D --> F
     E --> G
-🚀 Quick Start
-Option 1: Docker (Recommended)
-bash
+```
+
+---
+
+## 🚀 Quick Start
+
+### Option 1: Docker (Recommended)
+```bash
 git clone https://github.com/Sidra-009/vectordb-from-scratch.git
 cd vectordb-from-scratch
 docker compose up --build
-Option 2: Local Development
-bash
+```
+
+### Option 2: Local Development
+```bash
 # Terminal 1 - Backend
 uvicorn api.main:app --reload
 
@@ -158,9 +165,14 @@ uvicorn api.main:app --reload
 cd frontend
 npm install
 npm run dev
-💻 Local Development
-Backend Setup
-bash
+```
+
+---
+
+## 💻 Local Development
+
+### Backend Setup
+```bash
 # Create virtual environment
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
@@ -170,20 +182,28 @@ pip install -r requirements.txt
 
 # Run server
 uvicorn api.main:app --reload
-Frontend Setup
-bash
+```
+
+### Frontend Setup
+```bash
 cd frontend
 npm install
 npm run dev
-📚 API Reference
-1. Add Text (Semantic Vector)
-bash
+```
+
+---
+
+## 📚 API Reference
+
+### 1. Add Text (Semantic Vector)
+```bash
 curl -X POST "http://localhost:8000/add_text" \
   -H "Content-Type: application/json" \
   -d '{"text": "Biryani is a spicy rice dish", "metadata": "Pakistani Food"}'
-Response:
+```
 
-json
+**Response:**
+```json
 {
   "status": "success",
   "message": "Text added with ID: 0",
@@ -191,14 +211,17 @@ json
   "vector_dimension": 384,
   "total_vectors": 1
 }
-2. Search Text (Semantic Query)
-bash
+```
+
+### 2. Search Text (Semantic Query)
+```bash
 curl -X POST "http://localhost:8000/search_text" \
   -H "Content-Type: application/json" \
   -d '{"text": "I want something sweet", "top_k": 3}'
-Response:
+```
 
-json
+**Response:**
+```json
 {
   "results": [
     {"id": 1, "similarity": 0.8912, "metadata": "Pakistani Sweet"},
@@ -207,75 +230,108 @@ json
   "total_vectors": 5,
   "engine": "HNSW (Fast Approximate)"
 }
-3. Search with Metadata Filter
-bash
-curl -X POST "http://localhost:8000/search_text" \
-  -H "Content-Type: application/json" \
-  -d '{"text": "I want something sweet", "top_k": 5, "filter_metadata": "Dessert"}'
-4. Get Stats
-bash
+```
+
+### 3. Get Stats
+```bash
 curl "http://localhost:8000/stats"
-5. Health Check
-bash
+```
+
+### 4. Health Check
+```bash
 curl "http://localhost:8000/health"
-🛠️ Tech Stack
-Backend
-Technology	Purpose
-Python 3.10+	Core programming language
-FastAPI	High-performance web framework
-NumPy	Linear algebra operations
-Sentence-Transformers	AI embeddings generation
-HNSW	Approximate nearest neighbor (scratch implementation)
-Frontend
-Technology	Purpose
-Next.js 14	React framework with SSR
-Tailwind CSS	Styling with glassmorphism
-React	UI components
-DevOps
-Technology	Purpose
-Docker	Containerization
-Docker Compose	Multi-container orchestration
-📖 Documentation
-HNSW Internals Explained — Deep dive into our HNSW implementation, parameters (M, ef_construction, ef_search), distance metric, architecture diagram, and known limitations vs. production systems.
+```
 
-🤝 Contributing
-Contributions are welcome! Here's how you can help:
+---
 
-🍴 Fork the repository
+## 🛠️ Tech Stack
 
-🌿 Create your feature branch (git checkout -b feature/AmazingFeature)
+<<<<<<< HEAD
+## 🏃 How to Run (After Module 2)
+1. Install dependencies: `pip install -r requirements.txt`
+2. Run the server: `uvicorn api.main:app --reload`
+3. Open browser: `http://localhost:8000/docs` for Swagger UI
 
-💻 Commit your changes (git commit -m 'Add some AmazingFeature')
 
-📤 Push to the branch (git push origin feature/AmazingFeature)
+## 📖 Documentation
 
-🔄 Open a Pull Request
+- **[HNSW Internals Explained](docs/HNSW_EXPLAINED.md)** — Deep dive into our HNSW implementation, parameters (`M`, `ef_construction`, `ef_search`), distance metric, architecture diagram, and known limitations vs. production systems.
+=======
+### Backend
+| Technology | Purpose |
+| :--- | :--- |
+| **Python 3.10+** | Core programming language |
+| **FastAPI** | High-performance web framework |
+| **NumPy** | Linear algebra operations |
+| **Sentence-Transformers** | AI embeddings generation |
+| **HNSW** | Approximate nearest neighbor (scratch implementation) |
 
-Contribution Ideas
-🔧 Add more vector distance metrics (Euclidean, Manhattan)
+### Frontend
+| Technology | Purpose |
+| :--- | :--- |
+| **Next.js 14** | React framework with SSR |
+| **Tailwind CSS** | Styling with glassmorphism |
+| **React** | UI components |
 
-🗄️ Integrate with PostgreSQL for large-scale data
+### DevOps
+| Technology | Purpose |
+| :--- | :--- |
+| **Docker** | Containerization |
+| **Docker Compose** | Multi-container orchestration |
+| **GitHub Actions** | CI/CD (planned) |
 
-🔐 Add JWT authentication and rate limiting
+---
 
-📊 Build a comparison dashboard (Brute-Force vs HNSW)
+## 🤝 Contributing
 
-🌍 Add support for more languages (Urdu, Arabic)
+Contributions are **welcome**! Here's how you can help:
 
-🎯 Roadmap
-Status	Feature
-✅	Brute-Force Engine
-✅	HNSW Index
-✅	AI Embeddings
-✅	REST API
-✅	Next.js UI
-✅	Dockerization
-✅	Metadata Filtering
-⏳	PostgreSQL Integration
-⏳	Authentication & Rate Limiting
-⏳	Kubernetes Deployment
-⏳	CI/CD Pipeline
-📄 License
-Distributed under the MIT License. See LICENSE for more information.
+1.  **Fork** the repository
+2.  **Create** your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
+4.  **Push** to the branch (`git push origin feature/AmazingFeature`)
+5.  **Open** a Pull Request
 
-<div align="center"> <h3>⭐ If you found this useful, please give it a star! ⭐</h3> <br /> <p> <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Report Bug</a> · <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Request Feature</a> </p> <br /> <sub>Built with ❤️ by <strong>Sidra</strong></sub> <br /> <sub> <a href="https://github.com/Sidra-009">GitHub</a> · <a href="https://linkedin.com/in/yourprofile">LinkedIn</a> </sub> </div> ```
+### Contribution Ideas
+-  Add more vector distance metrics (Euclidean, Manhattan)
+-  Integrate with PostgreSQL for large-scale data
+-  Add JWT authentication and rate limiting
+-  Build a comparison dashboard (Brute-Force vs HNSW)
+-  Add support for more languages (Urdu, Arabic)
+
+---
+
+## 🎯 Roadmap
+
+| Status | Feature |
+| :---: | :--- |
+| ✅ | Brute-Force Engine |
+| ✅ | HNSW Index |
+| ✅ | AI Embeddings |
+| ✅ | REST API |
+| ✅ | Next.js UI |
+| ✅ | Dockerization |
+| ⏳ | PostgreSQL Integration |
+| ⏳ | Authentication & Rate Limiting |
+| ⏳ | Kubernetes Deployment |
+| ⏳ | CI/CD Pipeline |
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
+
+---
+
+<div align="center">
+  <h3>⭐ If you found this useful, please give it a star! ⭐</h3>
+  <br />
+  <p>
+    <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Report Bug</a> ·
+    <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Request Feature</a>
+  </p>
+  <sub>
+    <a href="https://github.com/Sidra-009">GitHub</a>·
+  </sub>
+</div>
