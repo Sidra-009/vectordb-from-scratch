@@ -199,8 +199,7 @@ class HNSWDB:
         """Retrieve metadata for a specific vector ID."""
         return self.metadata.get(idx, None)
 
-    # ===================== Persistence Methods =====================
-
+    # Persistence Methods 
     def save(self, filepath: str = "hnsw_db_data") -> None:
         """
         Save the entire HNSW index to disk using JSON + NPY format.
@@ -268,7 +267,7 @@ class HNSWDB:
             self.max_level = graph_data.get("max_level", 0)
             self.next_id = graph_data.get("next_id", max(self.vectors.keys()) + 1 if self.vectors else 0)
 
-        # 🔧 FIX: Ensure every vector has an entry in neighbors
+        # every vector has an entry in neighbors
         for vid in self.vectors.keys():
             if vid not in self.neighbors:
                 self.neighbors[vid] = {}
