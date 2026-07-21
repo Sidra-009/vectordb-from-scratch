@@ -1,256 +1,277 @@
 """
 Module 4: HNSW (Hierarchical Navigable Small World) Index
 This module implements an approximate nearest neighbor search using a multi-layer graph.
-It drastically speeds up search from O(n) to O(log n) with minimal accuracy loss.
 """
 
 import numpy as np
 import math
 import random
-import pickle
 import os
 from typing import List, Tuple, Optional, Dict, Set
+from src.persistence import VectorDBPersistence
+
 
 class HNSWDB:
     """
     A vector database using Hierarchical Navigable Small World graphs.
     Supports fast approximate nearest neighbor search.
     """
-    
+
     def __init__(self, M: int = 16, ef_construction: int = 200, ef_search: int = 50):
         """
         Initialize the HNSW index.
-        
+
         Args:
-            M: Maximum number of neighbors per node per layer (higher = more accurate but slower).
-            ef_construction: Dynamic list size during index building (higher = better index).
-            ef_search: Dynamic list size during search (higher = more accurate).
+            M: Maximum number of neighbors per node per layer.
+            ef_construction: Dynamic list size during index building.
+            ef_search: Dynamic list size during search.
         """
         self.M = M
         self.ef_construction = ef_construction
         self.ef_search = ef_search
-        
+
         # Core data structures
-        self.vectors: Dict[int, np.ndarray] = {}          # id -> vector
-        self.metadata: Dict[int, str] = {}                # id -> text
-        self.neighbors: Dict[int, Dict[int, Set[int]]] = {} # id -> {level: set(neighbor_ids)}
-        self.levels: Dict[int, int] = {}                  # id -> max_level assigned to this node
-        self.entry_point: Optional[int] = None            # Topmost node id
-        self.max_level = 0                                # Global max level
-        
-        self.next_id = 0  # Auto-incrementing ID for internal use
-        
+        self.vectors: Dict[int, np.ndarray] = {}
+        self.metadata: Dict[int, str] = {}
+        self.neighbors: Dict[int, Dict[int, Set[int]]] = {}
+        self.levels: Dict[int, int] = {}
+        self.entry_point: Optional[int] = None
+        self.max_level = 0
+        self.next_id = 0
+
         # HNSW constants
         self.LEVEL_MULTIPLIER = 1 / math.log(M)
-        
+
     def _random_level(self) -> int:
         """
         Generate a random level for a new node using exponential distribution.
         Higher levels have exponentially fewer nodes.
         """
         return int(-math.log(random.random()) * self.LEVEL_MULTIPLIER)
-    
+
     def _cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
-        """Calculate cosine similarity between two vectors."""
+        """
+        Calculate cosine similarity between two vectors.
+        Returns a value between -1 and 1.
+        """
         dot = np.dot(vec1, vec2)
         norm1 = np.linalg.norm(vec1)
         norm2 = np.linalg.norm(vec2)
         if norm1 == 0 or norm2 == 0:
             return 0.0
         return dot / (norm1 * norm2)
-    
+
     def _search_layer(self, query: np.ndarray, entry_id: int, level: int, ef: int) -> List[int]:
         """
         Perform a greedy search on a single layer to find the ef nearest neighbors.
         This is the core traversal algorithm of HNSW.
         """
         visited = set()
-        candidates = []  # (distance, id) - negative for max-heap simulation
-        
-        # Start from the entry point
+        candidates = []
+
+        # Ensure entry_id has neighbors entry
+        if entry_id not in self.neighbors:
+            self.neighbors[entry_id] = {}
+
         entry_dist = 1 - self._cosine_similarity(query, self.vectors[entry_id])
         candidates.append((entry_dist, entry_id))
         visited.add(entry_id)
-        
-        # Use a simple list as a priority queue (brute-force within this layer)
-        # In production we use heapq, but for simplicity and learning, we use a list.
+
         while True:
-            # Find the closest candidate not yet processed
             candidates.sort(key=lambda x: x[0])
             closest = candidates[0]
-            
-            # Explore neighbors of the closest node at this level
+
             current_neighbors = self.neighbors[closest[1]].get(level, set())
             new_candidates = []
-            
+
             for neighbor_id in current_neighbors:
                 if neighbor_id not in visited:
                     visited.add(neighbor_id)
                     dist = 1 - self._cosine_similarity(query, self.vectors[neighbor_id])
                     candidates.append((dist, neighbor_id))
-            
-            # Sort and keep only the ef best candidates
+
             candidates.sort(key=lambda x: x[0])
             candidates = candidates[:ef]
-            
-            # Convergence check: if the closest node hasn't changed in the last iteration
-            # (Simplified: break if no new candidates added)
+
             if not new_candidates:
                 break
-            # Additional safety: break if candidates list is small
             if len(candidates) < 2:
                 break
-            # Simple convergence: if the top candidate is the same as previous iteration
-            # We'll just limit iterations by checking if the first element's id changed
-            # For pure Python implementation, we use a simple loop limit.
-            break  # This simplified version will just take the current closest
-        
+
+            break
+
         return [c[1] for c in candidates]
-    
+
     def add(self, vector: List[float], metadata: str = "") -> int:
         """
         Add a new vector to the HNSW index.
         Returns the auto-generated ID.
         """
-        id = self.next_id
+        idx = self.next_id
         self.next_id += 1
-        
+
         vec_np = np.array(vector)
-        self.vectors[id] = vec_np
-        self.metadata[id] = metadata
-        
-        # Assign random level
+        self.vectors[idx] = vec_np
+        self.metadata[idx] = metadata
+
         level = self._random_level()
-        self.levels[id] = level
-        self.neighbors[id] = {}
-        
-        # Initialize neighbor sets for each level
+        self.levels[idx] = level
+        self.neighbors[idx] = {}
+
         for l in range(level + 1):
-            self.neighbors[id][l] = set()
-        
-        # If this is the first node, make it the entry point
+            self.neighbors[idx][l] = set()
+
         if self.entry_point is None:
-            self.entry_point = id
+            self.entry_point = idx
             self.max_level = level
-            return id
-        
-        # Find entry point at the highest level
+            return idx
+
         curr_id = self.entry_point
         curr_level = self.max_level
-        
-        # Traverse from top down to level+1 (finding the closest node at each level)
+
         for l in range(curr_level, level, -1):
-            # Greedy search at level l
             candidates = self._search_layer(vec_np, curr_id, l, 1)
             if candidates:
                 curr_id = candidates[0]
-        
-        # Now connect at levels from min(level, max_level) down to 0
+
         for l in range(min(level, self.max_level), -1, -1):
-            # Find ef_construction neighbors at this level
             neighbors_l = self._search_layer(vec_np, curr_id, l, self.ef_construction)
-            
-            # Add connections bidirectionally
+
             for neighbor_id in neighbors_l:
-                # Connect id -> neighbor
-                self.neighbors[id][l].add(neighbor_id)
-                # Connect neighbor -> id
+                self.neighbors[idx][l].add(neighbor_id)
+
+                # Ensure neighbor_id exists in self.neighbors
+                if neighbor_id not in self.neighbors:
+                    self.neighbors[neighbor_id] = {}
                 if l not in self.neighbors[neighbor_id]:
                     self.neighbors[neighbor_id][l] = set()
-                self.neighbors[neighbor_id][l].add(id)
-                
-                # Prune connections if they exceed M
+                self.neighbors[neighbor_id][l].add(idx)
+
                 if len(self.neighbors[neighbor_id][l]) > self.M:
-                    # Keep only the M closest neighbors (simplified pruning)
-                    # We sort by distance to the neighbor's own vector
                     neighbor_vec = self.vectors[neighbor_id]
                     neighbor_connections = list(self.neighbors[neighbor_id][l])
                     neighbor_connections.sort(
                         key=lambda x: 1 - self._cosine_similarity(neighbor_vec, self.vectors[x])
                     )
                     self.neighbors[neighbor_id][l] = set(neighbor_connections[:self.M])
-            
-            # Update current node to the best neighbor for next level
+
             if neighbors_l:
                 curr_id = neighbors_l[0]
-        
-        # Update entry point if this node has a higher level
+
         if level > self.max_level:
             self.max_level = level
-            self.entry_point = id
-        
-        return id
-    
+            self.entry_point = idx
+
+        return idx
+
     def search(self, query_vector: List[float], top_k: int = 5) -> List[Tuple[int, float]]:
         """
         Search for the top_k nearest neighbors using the HNSW graph.
         """
         if self.entry_point is None or len(self.vectors) == 0:
             return []
-        
+
         query_np = np.array(query_vector)
-        
-        # Start from the entry point at the top level
+
         curr_id = self.entry_point
         curr_level = self.max_level
-        
-        # Traverse down from top to level 1 (greedy)
+
         for l in range(curr_level, 0, -1):
             candidates = self._search_layer(query_np, curr_id, l, 1)
             if candidates:
                 curr_id = candidates[0]
-        
-        # Search at level 0 for the final results
+
         candidates = self._search_layer(query_np, curr_id, 0, self.ef_search)
-        
-        # Filter to top_k
+
         results = []
-        for id in candidates[:top_k]:
-            sim = self._cosine_similarity(query_np, self.vectors[id])
-            results.append((id, sim))
-        
+        for idx in candidates[:top_k]:
+            sim = self._cosine_similarity(query_np, self.vectors[idx])
+            results.append((idx, sim))
+
         results.sort(key=lambda x: x[1], reverse=True)
         return results
-    
+
     def size(self) -> int:
         """Return the number of vectors in the database."""
         return len(self.vectors)
-    
-    def get_metadata(self, id: int) -> Optional[str]:
+
+    def get_metadata(self, idx: int) -> Optional[str]:
         """Retrieve metadata for a specific vector ID."""
-        return self.metadata.get(id, None)
-    
-    # ===================== Persistence (Pickle) =====================
-    
-    def save(self, filepath: str = "hnsw_db_data.pkl") -> None:
-        """Save the entire HNSW index to disk."""
-        data = {
-            "vectors": self.vectors,
-            "metadata": self.metadata,
+        return self.metadata.get(idx, None)
+
+    # ===================== Persistence Methods =====================
+
+    def save(self, filepath: str = "hnsw_db_data") -> None:
+        """
+        Save the entire HNSW index to disk using JSON + NPY format.
+
+        Args:
+            filepath: Base path (without extension).
+                     Creates {filepath}.meta.json and {filepath}.vectors.npy
+        """
+        vectors_to_save = {}
+        for idx, vec in self.vectors.items():
+            vectors_to_save[idx] = vec
+
+        metadata_to_save = self.metadata
+
+        graph_data = {
             "neighbors": self.neighbors,
             "levels": self.levels,
             "entry_point": self.entry_point,
             "max_level": self.max_level,
-            "next_id": self.next_id
+            "next_id": self.next_id,
         }
-        with open(filepath, "wb") as f:
-            pickle.dump(data, f)
-        print(f"[HNSW Persistence] Database saved to {filepath}")
-    
-    def load(self, filepath: str = "hnsw_db_data.pkl") -> bool:
-        """Load the HNSW index from disk."""
-        if os.path.exists(filepath):
-            with open(filepath, "rb") as f:
-                data = pickle.load(f)
-                self.vectors = data["vectors"]
-                self.metadata = data["metadata"]
-                self.neighbors = data["neighbors"]
-                self.levels = data["levels"]
-                self.entry_point = data["entry_point"]
-                self.max_level = data["max_level"]
-                self.next_id = data["next_id"]
-            print(f"[HNSW Persistence] Database loaded from {filepath} ({self.size()} vectors)")
-            return True
+
+        full_metadata = {
+            "data": metadata_to_save,
+            "graph": graph_data,
+        }
+
+        persister = VectorDBPersistence(filepath)
+        success = persister.save(vectors_to_save, full_metadata)
+
+        if success:
+            print(f"[HNSW Persistence] Database saved to {filepath}.meta.json and .vectors.npy")
         else:
-            print(f"[HNSW Persistence] No existing database found at {filepath}. Starting fresh.")
+            print(f"[HNSW Persistence] ERROR: Failed to save database!")
+
+    def load(self, filepath: str = "hnsw_db_data") -> bool:
+        """
+        Load the HNSW index from disk using JSON + NPY format.
+
+        Args:
+            filepath: Base path (without extension).
+
+        Returns:
+            True if loaded successfully, False if no existing data.
+        """
+        persister = VectorDBPersistence(filepath)
+        vectors_loaded, metadata_loaded = persister.load()
+
+        if not vectors_loaded:
+            print(f"[HNSW Persistence] No existing database found. Starting fresh.")
             return False
+
+        self.vectors = vectors_loaded
+
+        if "data" in metadata_loaded:
+            self.metadata = metadata_loaded["data"]
+        else:
+            self.metadata = metadata_loaded
+
+        if "graph" in metadata_loaded:
+            graph_data = metadata_loaded["graph"]
+            self.neighbors = graph_data.get("neighbors", {})
+            self.levels = graph_data.get("levels", {})
+            self.entry_point = graph_data.get("entry_point", None)
+            self.max_level = graph_data.get("max_level", 0)
+            self.next_id = graph_data.get("next_id", max(self.vectors.keys()) + 1 if self.vectors else 0)
+
+        # 🔧 FIX: Ensure every vector has an entry in neighbors
+        for vid in self.vectors.keys():
+            if vid not in self.neighbors:
+                self.neighbors[vid] = {}
+
+        print(f"[HNSW Persistence] Loaded from {filepath}.meta.json and .vectors.npy ({len(self.vectors)} vectors)")
+        return True
