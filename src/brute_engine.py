@@ -22,7 +22,7 @@ class BruteForceDB:
         # Dictionary to store vector ID -> original text/metadata
         self.metadata: dict[str, str] = {}
 
-    # ... (add, _cosine_similarity, search, size, get_metadata methods same)
+    # (add, _cosine_similarity, search, size, get_metadata methods same)
 
     
     # Persistence Methods (NEW: JSON + NPY)
