@@ -1,0 +1,16 @@
+{
+  "ids": [],
+  "metadata": {
+    "data": {},
+    "graph": {
+      "neighbors": {},
+      "levels": {},
+      "entry_point": null,
+      "max_level": 0,
+      "next_id": 0
+    }
+  },
+  "dimension": 0,
+  "num_vectors": 0,
+  "version": "2.0"
+}

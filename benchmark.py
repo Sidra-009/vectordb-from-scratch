@@ -12,6 +12,13 @@ import matplotlib.pyplot as plt
 import json
 import os
 
+
+def compute_recall(hnsw_results, ground_truth_results, k):
+    """Compute recall@k: fraction of HNSW results that are in the brute-force top-k."""
+    hnsw_ids = set(idx for idx, _ in hnsw_results[:k])
+    truth_ids = set(ground_truth_results[:k])
+    return len(hnsw_ids & truth_ids) / k if k > 0 else 0.0
+
 # Import our engines
 from src.hnsw_engine import HNSWDB
 from src.brute_engine import BruteForceDB
@@ -165,6 +172,24 @@ class BenchmarkRunner:
             bf_results = self.benchmark_bruteforce(vectors, queries)
             hnsw_results = self.benchmark_hnsw(vectors, queries)
             faiss_results = self.benchmark_faiss(vectors, queries) if FAISS_AVAILABLE else None
+
+            # Compute recall@k using brute-force ground truth and our HNSW implementation
+            print("  [Recall] Computing recall@k (this will rebuild a small HNSW index)...")
+            hnsw_db = HNSWDB(M=16, ef_construction=200, ef_search=50)
+            for i, vec in enumerate(vectors):
+                hnsw_db.add(vec.tolist(), f"Vector {i}")
+
+            recalls = []
+            for q in queries:
+                # ground truth top-k (exact)
+                sims = vectors.dot(q) / (np.linalg.norm(vectors, axis=1) * np.linalg.norm(q) + 1e-12)
+                truth_idx = np.argsort(-sims)
+
+                hnsw_res = hnsw_db.search(q.tolist(), self.top_k)
+                # compute recall using index lists
+                recalls.append(compute_recall(hnsw_res, truth_idx.tolist(), self.top_k))
+
+            avg_recall_at_k = float(np.mean(recalls)) if recalls else 0.0
             
             # Store results
             result = {
@@ -172,6 +197,7 @@ class BenchmarkRunner:
                 "bruteforce": bf_results,
                 "hnsw": hnsw_results,
                 "faiss": faiss_results,
+                "recall_at_10": avg_recall_at_k,
             }
             all_results.append(result)
         
@@ -227,6 +253,15 @@ class BenchmarkRunner:
             n = res["n_vectors"]
             speedup = res["bruteforce"]["p50_search"] / res["hnsw"]["p50_search"]
             markdown_lines.append(f"- **{n:,} vectors**: HNSW is **{speedup:.1f}x faster** than brute-force.")
+
+        markdown_lines.append("")
+        markdown_lines.append("## Recall@10")
+        markdown_lines.append("")
+        for res in self.results:
+            n = res["n_vectors"]
+            recall = res.get("recall_at_10", None)
+            if recall is not None:
+                markdown_lines.append(f"- **{n:,} vectors**: average Recall@10 = **{recall*100:.2f}%**")
         
         # Write report
         report_path = os.path.join(output_dir, "benchmark_report.md")
