@@ -6,7 +6,7 @@ This module implements a naive vector database with disk persistence using JSON 
 import numpy as np
 from typing import List, Tuple, Optional
 import os
-from src.persistence import VectorDBPersistence  # <-- NEW IMPORT
+from src.persistence import VectorDBPersistence  
 
 class BruteForceDB:
     """
