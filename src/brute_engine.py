@@ -22,6 +22,38 @@ class BruteForceDB:
         # Dictionary to store vector ID -> original text/metadata
         self.metadata: dict[str, str] = {}
 
+    def add(self, id: str, vector: List[float], metadata: str = "") -> None:
+        """Add a vector with string ID and optional metadata."""
+        vec_np = np.array(vector, dtype=np.float32)
+        self.vectors[id] = vec_np
+        self.metadata[id] = metadata
+
+    def _cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
+        dot = np.dot(vec1, vec2)
+        norm1 = np.linalg.norm(vec1)
+        norm2 = np.linalg.norm(vec2)
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        return float(dot / (norm1 * norm2))
+
+    def search(self, query: List[float], top_k: int = 5) -> List[Tuple[str, float]]:
+        """Return top_k (id, similarity) pairs for the query vector."""
+        if not self.vectors:
+            return []
+        q = np.array(query, dtype=np.float32)
+        results = []
+        for id, vec in self.vectors.items():
+            sim = self._cosine_similarity(q, vec)
+            results.append((id, sim))
+        results.sort(key=lambda x: x[1], reverse=True)
+        return results[:top_k]
+
+    def size(self) -> int:
+        return len(self.vectors)
+
+    def get_metadata(self, id: str) -> Optional[str]:
+        return self.metadata.get(id)
+
     # (add, _cosine_similarity, search, size, get_metadata methods same)
 
     

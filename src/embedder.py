@@ -3,7 +3,7 @@ Module 5: Text Embedding Service
 This module loads a Sentence-Transformer model to convert text into vectors.
 """
 
-from sentence_transformers import SentenceTransformer
+import os
 from typing import List
 
 class Embedder:
@@ -20,7 +20,17 @@ class Embedder:
             model_name: Name of the Sentence-Transformer model.
                        'all-MiniLM-L6-v2' is small (~80MB) and fast, good for development.
         """
+        # Prefer the workspace-local cache directory if present to avoid external downloads
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        local_cache = os.path.join(repo_root, "cache")
+        if os.path.isdir(local_cache):
+            # Force cache locations to the repo-local cache to avoid permission issues
+            os.environ["HF_HOME"] = local_cache
+            os.environ["TRANSFORMERS_CACHE"] = local_cache
+
         print(f"[AI Model] Loading model: {model_name}...")
+        # Import here so the cache env vars are applied before transformers initializes
+        from sentence_transformers import SentenceTransformer
         self.model = SentenceTransformer(model_name)
         self.dimension = self.model.get_sentence_embedding_dimension()
         print(f"[AI Model] Loaded successfully. Embedding dimension: {self.dimension}")
