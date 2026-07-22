@@ -2,7 +2,7 @@
 Module 4: HNSW (Hierarchical Navigable Small World) Index
 This module implements an approximate nearest neighbor search using a multi-layer graph.
 """
-
+import heapq
 import threading
 import numpy as np
 import math
@@ -15,7 +15,7 @@ from src.persistence import VectorDBPersistence
 class HNSWDB:
     """
     A vector database using Hierarchical Navigable Small World graphs.
-    Supports fast approximate nearest neighbor search.
+    Supports fast approximate nearest neighbor search. Supports deletion of vectors.
     """
 
     def __init__(self, M: int = 16, ef_construction: int = 200, ef_search: int = 50):
@@ -51,7 +51,8 @@ class HNSWDB:
         Generate a random level for a new node using exponential distribution.
         Higher levels have exponentially fewer nodes.
         """
-        return int(-math.log(random.random()) * self.LEVEL_MULTIPLIER)
+        level = int(-math.log(random.random()) * self.LEVEL_MULTIPLIER)
+        return min(level, 16)  # Cap at 16 to avoid overly sparse top layers
 
     def _cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
         """
@@ -70,41 +71,38 @@ class HNSWDB:
         Perform a greedy search on a single layer to find the ef nearest neighbors.
         This is the core traversal algorithm of HNSW.
         """
-        visited = set()
-        candidates = []
-
-        # Ensure entry_id has neighbors entry
-        if entry_id not in self.neighbors:
-            self.neighbors[entry_id] = {}
-
+        visited = {entry_id}
         entry_dist = 1 - self._cosine_similarity(query, self.vectors[entry_id])
-        candidates.append((entry_dist, entry_id))
-        visited.add(entry_id)
 
-        while True:
-            candidates.sort(key=lambda x: x[0])
-            closest = candidates[0]
+        # candidates = frontier to explore (min-heap by distance)
+        # found = best ef results seen so far (max-heap by distance, capped at ef)
+        candidates = [(entry_dist, entry_id)]
+        found = [(-entry_dist, entry_id)]  # negated for max-heap behavior
+        heapq.heapify(candidates)
+        heapq.heapify(found)
 
-            current_neighbors = self.neighbors[closest[1]].get(level, set())
-            new_candidates = []
+        while candidates:
+            curr_dist, curr_id = heapq.heappop(candidates)
 
-            for neighbor_id in current_neighbors:
-                if neighbor_id not in visited:
-                    visited.add(neighbor_id)
-                    dist = 1 - self._cosine_similarity(query, self.vectors[neighbor_id])
-                    candidates.append((dist, neighbor_id))
+            # worst distance currently kept in `found`
+            worst_found = -found[0][0]
+            if curr_dist > worst_found and len(found) >= ef:
+                break  # no improvement possible, stop expanding
 
-            candidates.sort(key=lambda x: x[0])
-            candidates = candidates[:ef]
+            for neighbor_id in self.neighbors.get(curr_id, {}).get(level, set()):
+                if neighbor_id in visited:
+                    continue
+                visited.add(neighbor_id)
+                dist = 1 - self._cosine_similarity(query, self.vectors[neighbor_id])
 
-            if not new_candidates:
-                break
-            if len(candidates) < 2:
-                break
+                if len(found) < ef or dist < -found[0][0]:
+                    heapq.heappush(candidates, (dist, neighbor_id))
+                    heapq.heappush(found, (-dist, neighbor_id))
+                    if len(found) > ef:
+                        heapq.heappop(found)
 
-            break
-
-        return [c[1] for c in candidates]
+        result = sorted(found, key=lambda x: -x[0])
+        return [idx for _, idx in result]
 
     def add(self, vector: List[float], metadata: str = "") -> int:
         """
@@ -207,7 +205,24 @@ class HNSWDB:
         """Retrieve metadata for a specific vector ID."""
         return self.metadata.get(idx, None)
 
-    #persistence methods
+    def delete(self, idx: int) -> bool:
+        """Delete a vector by its ID. Returns True if deleted, False if not found."""
+        with self._lock:
+            if idx not in self.vectors:
+                return False
+            del self.vectors[idx]
+            del self.metadata[idx]
+            # Remove idx from all neighbor sets
+            for level_map in self.neighbors.values():
+                for level_set in level_map.values():
+                    level_set.discard(idx)
+            del self.neighbors[idx]
+            del self.levels[idx]
+            if self.entry_point == idx:
+                self.entry_point = next(iter(self.vectors), None)
+            return True
+
+    # ===================== Persistence Methods =====================
 
     def save(self, filepath: str = "hnsw_db_data") -> None:
         """
@@ -268,15 +283,22 @@ class HNSWDB:
             self.vectors = vectors_loaded
 
             if "data" in metadata_loaded:
-                self.metadata = metadata_loaded["data"]
+                self.metadata = {int(k): v for k, v in metadata_loaded["data"].items()}
             else:
                 self.metadata = metadata_loaded
 
             if "graph" in metadata_loaded:
                 graph_data = metadata_loaded["graph"]
-                self.neighbors = graph_data.get("neighbors", {})
-                self.levels = graph_data.get("levels", {})
-                self.entry_point = graph_data.get("entry_point", None)
+                raw_neighbors = graph_data.get("neighbors", {})
+                self.neighbors = {
+                    int(node_id): {
+                        int(level): set(neighbor_list)
+                        for level, neighbor_list in levels.items()
+                    }
+                    for node_id, levels in raw_neighbors.items()
+                }
+                self.levels = {int(k): v for k, v in graph_data.get("levels", {}).items()}
+                self.entry_point = graph_data.get("entry_point")
                 self.max_level = graph_data.get("max_level", 0)
                 self.next_id = graph_data.get("next_id", max(self.vectors.keys()) + 1 if self.vectors else 0)
 
