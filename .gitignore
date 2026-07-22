@@ -1,28 +1,9 @@
-# Python
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
-*.pkl
-
-# AI Model Cache
 cache/
-
-# Environment
 .env
 .env.local
-
-# Node Modules / Frontend
-frontend/.next/
-node_modules/
-
-# API cache
-api/__pycache__/
-
-# Persistence artifacts (do not commit database runtime files)
 hnsw_db_data.*
-vector_db_data.*
-
-# Misc
-*.log
-*.cache
+frontend/node_modules/
+frontend/.next/
