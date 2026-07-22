@@ -207,7 +207,7 @@ class HNSWDB:
         """Retrieve metadata for a specific vector ID."""
         return self.metadata.get(idx, None)
 
-    # ===================== Persistence Methods =====================
+    #persistence methods
 
     def save(self, filepath: str = "hnsw_db_data") -> None:
         """
