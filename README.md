@@ -1,11 +1,3 @@
-<div align="center">
-  <img src="https://img.shields.io/badge/VectorDB-From%20Scratch-6C2BD9?style=for-the-badge&logo=python&logoColor=white" alt="VectorDB" />
-  <br />
-  <img src="https://img.shields.io/github/stars/Sidra-009/vectordb-from-scratch?style=social" alt="GitHub stars" />
-  <img src="https://img.shields.io/github/forks/Sidra-009/vectordb-from-scratch?style=social" alt="GitHub forks" />
-  <img src="https://img.shields.io/github/watchers/Sidra-009/vectordb-from-scratch?style=social" alt="GitHub watchers" />
-</div>
-
 <br />
 
 <div align="center">
