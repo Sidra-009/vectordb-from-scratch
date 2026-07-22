@@ -1,3 +1,11 @@
+<div align="center">
+  <img src="https://img.shields.io/badge/VectorDB-From%20Scratch-6C2BD9?style=for-the-badge&logo=python&logoColor=white" alt="VectorDB" />
+  <br />
+  <img src="https://img.shields.io/github/stars/Sidra-009/vectordb-from-scratch?style=social" alt="GitHub stars" />
+  <img src="https://img.shields.io/github/forks/Sidra-009/vectordb-from-scratch?style=social" alt="GitHub forks" />
+  <img src="https://img.shields.io/github/watchers/Sidra-009/vectordb-from-scratch?style=social" alt="GitHub watchers" />
+</div>
+
 <br />
 
 <div align="center">
@@ -12,8 +20,8 @@
   </p>
   <p>
     <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome" />
-    <img src="https://img.shields.io/badge/Code-Style-black?style=flat-square" alt="Code Style" />
-    <img src="https://img.shields.io/badge/CI-CD-Ready-brightgreen?style=flat-square" alt="CI/CD" />
+    <img src="https://img.shields.io/badge/Thread--Safe-brightgreen.svg?style=flat-square" alt="Thread Safe" />
+    <img src="https://img.shields.io/badge/Tests-Passing-brightgreen.svg?style=flat-square" alt="Tests Passing" />
   </p>
 </div>
 
@@ -29,7 +37,9 @@
 - [Quick Start](#-quick-start)
 - [Local Development](#-local-development)
 - [API Reference](#-api-reference)
+- [Running Tests](#-running-tests)
 - [Tech Stack](#️-tech-stack)
+- [Documentation](#-documentation)
 - [Contributing](#-contributing)
 - [Roadmap](#-roadmap)
 - [License](#-license)
@@ -46,8 +56,8 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 | Aspect | Description |
 | :--- | :--- |
-| **Educational** | Step-by-step code with clear comments. Learn HNSW from scratch. |
-| **Production-Ready** | Dockerized, CI/CD ready, with beautiful UI. |
+|  **Educational** | Step-by-step code with clear comments. Learn HNSW from scratch. |
+| **Production-Ready** | Dockerized, thread-safe, with beautiful UI. |
 | **Algorithmic** | HNSW graph implemented manually (no black-box libraries). |
 | **AI-Powered** | Semantic search using Sentence-Transformers. |
 | **Global-Ready** | Works with any language (English, Urdu, Roman Urdu, etc.). |
@@ -63,7 +73,7 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
   </tr>
   <tr>
     <td align="center"><b> AI Embeddings</b><br/>Converts text to vectors using <br/><code>all-MiniLM-L6-v2</code></td>
-    <td align="center"><b> Persistence</b><br/>Automatic save/load to disk <br/>using Pickle</td>
+    <td align="center"><b> Persistence</b><br/>JSON + NPY format with <br/>atomic writes & checksums</td>
   </tr>
   <tr>
     <td align="center"><b> REST API</b><br/>Swagger UI available at <br/><code>/docs</code></td>
@@ -71,7 +81,11 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
   </tr>
   <tr>
     <td align="center"><b> Dockerized</b><br/>Run entire stack with <br/>one command</td>
-    <td align="center"><b> Secure</b><br/>Ready for authentication <br/>& rate limiting</td>
+    <td align="center"><b> Metadata Filtering</b><br/>Post-filter search results <br/>by metadata</td>
+  </tr>
+  <tr>
+    <td align="center"><b> Thread-Safe</b><br/>RLock for concurrent <br/>add/search operations</td>
+    <td align="center"><b> Tested</b><br/>Pytest suite with <br/>integration & concurrency tests</td>
   </tr>
 </table>
 
@@ -89,6 +103,8 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 | **HNSW** | 100,000 | **2.1 ms** | ~95% |
 
 > **Speed improvement: 100x - 1000x faster with HNSW!**
+
+![Latency Comparison](benchmarks/latency_comparison.png)
 
 ---
 
@@ -124,7 +140,7 @@ graph LR
     end
 
     subgraph Storage
-        F[(Pickle File<br/>vector_db_data.pkl)]
+        F[(JSON + NPY<br/>vector_db_data)]
         G[(Model Cache<br/>~90MB)]
     end
 
@@ -136,65 +152,107 @@ graph LR
     D --> F
     E --> G
 ```
+# Quick Start
+
+## Prerequisites
+
+| Requirement | Version |
+|------------|----------|
+| Python | 3.10+ |
+| Node.js | 20+ |
+| Docker | Latest |
+| Docker Compose | Latest |
 
 ---
 
-## 🚀 Quick Start
+## Option 1 — Docker (Recommended)
 
-### Option 1: Docker (Recommended)
+Launch the complete application stack with Docker.
+
 ```bash
 git clone https://github.com/Sidra-009/vectordb-from-scratch.git
+
 cd vectordb-from-scratch
+
 docker compose up --build
 ```
 
-### Option 2: Local Development
-```bash
-# Terminal 1 - Backend
-uvicorn api.main:app --reload
+Once the containers are running:
 
-# Terminal 2 - Frontend
-cd frontend
-npm install
-npm run dev
-```
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| API | http://localhost:8000 |
+| API Documentation | http://localhost:8000/docs |
+| Health Check | http://localhost:8000/health |
 
 ---
 
-## 💻 Local Development
+## Option 2 — Local Development
 
-### Backend Setup
+### Backend
+
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+python -m venv .venv
 
-# Install dependencies
+# Linux / macOS
+source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate
+
 pip install -r requirements.txt
 
-# Run server
 uvicorn api.main:app --reload
 ```
 
-### Frontend Setup
+### Frontend
+
 ```bash
 cd frontend
+
 npm install
+
 npm run dev
 ```
 
 ---
 
-## 📚 API Reference
+# API Reference
 
-### 1. Add Text (Semantic Vector)
-```bash
-curl -X POST "http://localhost:8000/add_text" \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Biryani is a spicy rice dish", "metadata": "Pakistani Food"}'
+The REST API is automatically documented using OpenAPI.
+
+Interactive documentation:
+
+```
+http://localhost:8000/docs
 ```
 
-**Response:**
+---
+
+## Add Text
+
+**Endpoint**
+
+```http
+POST /add_text
+```
+
+Stores a text document, generates its embedding, and inserts it into the HNSW index.
+
+### Example
+
+```bash
+curl -X POST "http://localhost:8000/add_text" \
+-H "Content-Type: application/json" \
+-d '{
+  "text":"Biryani is a spicy rice dish",
+  "metadata":"Pakistani Food"
+}'
+```
+
+### Response
+
 ```json
 {
   "status": "success",
@@ -205,124 +263,294 @@ curl -X POST "http://localhost:8000/add_text" \
 }
 ```
 
-### 2. Search Text (Semantic Query)
-```bash
-curl -X POST "http://localhost:8000/search_text" \
-  -H "Content-Type: application/json" \
-  -d '{"text": "I want something sweet", "top_k": 3}'
+---
+
+## Semantic Search
+
+**Endpoint**
+
+```http
+POST /search_text
 ```
 
-**Response:**
+Performs Approximate Nearest Neighbor search using the HNSW graph.
+
+### Example
+
+```bash
+curl -X POST "http://localhost:8000/search_text" \
+-H "Content-Type: application/json" \
+-d '{
+  "text":"I want something sweet",
+  "top_k":3
+}'
+```
+
+### Response
+
 ```json
 {
   "results": [
-    {"id": 1, "similarity": 0.8912, "metadata": "Pakistani Sweet"},
-    {"id": 3, "similarity": 0.7654, "metadata": "Dessert"}
+    {
+      "id": 1,
+      "similarity": 0.8912,
+      "metadata": "Pakistani Sweet"
+    },
+    {
+      "id": 3,
+      "similarity": 0.7654,
+      "metadata": "Dessert"
+    }
   ],
   "total_vectors": 5,
   "engine": "HNSW (Fast Approximate)"
 }
 ```
 
-### 3. Get Stats
-```bash
-curl "http://localhost:8000/stats"
-```
+---
 
-### 4. Health Check
+## Search with Metadata Filter
+
 ```bash
-curl "http://localhost:8000/health"
+curl -X POST "http://localhost:8000/search_text" \
+-H "Content-Type: application/json" \
+-d '{
+  "text":"I want something sweet",
+  "top_k":5,
+  "filter_metadata":"Dessert"
+}'
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Database Statistics
 
-## 🏃 How to Run (After Module 2)
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run the server: `uvicorn api.main:app --reload`
-3. Open browser: `http://localhost:8000/docs` for Swagger UI
+```http
+GET /stats
+```
 
+Example:
 
-## 📖 Documentation
-
-- **[HNSW Internals Explained](docs/HNSW_EXPLAINED.md)** — Deep dive into our HNSW implementation, parameters (`M`, `ef_construction`, `ef_search`), distance metric, architecture diagram, and known limitations vs. production systems.
-=======
-### Backend
-| Technology | Purpose |
-| :--- | :--- |
-| **Python 3.10+** | Core programming language |
-| **FastAPI** | High-performance web framework |
-| **NumPy** | Linear algebra operations |
-| **Sentence-Transformers** | AI embeddings generation |
-| **HNSW** | Approximate nearest neighbor (scratch implementation) |
-
-### Frontend
-| Technology | Purpose |
-| :--- | :--- |
-| **Next.js 14** | React framework with SSR |
-| **Tailwind CSS** | Styling with glassmorphism |
-| **React** | UI components |
-
-### DevOps
-| Technology | Purpose |
-| :--- | :--- |
-| **Docker** | Containerization |
-| **Docker Compose** | Multi-container orchestration |
-| **GitHub Actions** | CI/CD (planned) |
+```bash
+curl http://localhost:8000/stats
+```
 
 ---
 
-## 🤝 Contributing
+## Health Check
 
-Contributions are **welcome**! Here's how you can help:
+```http
+GET /health
+```
 
-1.  **Fork** the repository
-2.  **Create** your feature branch (`git checkout -b feature/AmazingFeature`)
-3.  **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4.  **Push** to the branch (`git push origin feature/AmazingFeature`)
-5.  **Open** a Pull Request
+Example:
+
+```bash
+curl http://localhost:8000/health
+```
+
+---
+
+# Running Tests
+
+The project includes unit tests, integration tests, and concurrency tests.
+
+Install testing dependencies:
+
+```bash
+pip install pytest pytest-cov
+```
+
+Run the complete test suite:
+
+```bash
+pytest tests/ -v
+```
+
+Run integration tests only:
+
+```bash
+pytest tests/test_integration.py -v
+```
+
+Run concurrency tests:
+
+```bash
+python tests/test_concurrency.py
+```
+
+Generate a coverage report:
+
+```bash
+pytest --cov=src --cov-report=term
+```
+
+Example output:
+
+```text
+============================= test session starts =============================
+collected 8 items
+
+tests/test_integration.py::TestHNSWDB::test_empty_search PASSED
+tests/test_integration.py::TestHNSWDB::test_add_and_search PASSED
+tests/test_integration.py::TestHNSWDB::test_duplicate_insertion PASSED
+tests/test_integration.py::TestHNSWDB::test_very_short_text_embedding PASSED
+tests/test_integration.py::TestHNSWDB::test_very_long_text_embedding PASSED
+tests/test_integration.py::TestHNSWDB::test_unicode_text_embedding PASSED
+tests/test_integration.py::TestHNSWDB::test_metadata_filter_no_matches PASSED
+tests/test_integration.py::TestHNSWDB::test_metadata_filter_with_matches PASSED
+
+============================= 8 passed in 2.34s =============================
+```
+
+---
+
+# Engineering Highlights
+
+- Scratch implementation of the HNSW algorithm
+- Approximate Nearest Neighbor search
+- Semantic vector search using Sentence Transformers
+- Metadata-aware filtering
+- Thread-safe indexing and search
+- Modular architecture
+- REST API built with FastAPI
+- Interactive OpenAPI documentation
+- Dockerized development environment
+- Comprehensive test suite
+
+---
+
+# Tech Stack
+
+## Backend
+
+| Technology | Purpose |
+|------------|---------|
+| Python 3.10+ | Core programming language |
+| FastAPI | REST API |
+| NumPy | Linear algebra operations |
+| Sentence Transformers | Embedding generation |
+| HNSW | Approximate Nearest Neighbor indexing |
+| Pydantic | Request validation |
+
+---
+
+## Frontend
+
+| Technology | Purpose |
+|------------|---------|
+| Next.js 14 | Frontend framework |
+| React | User interface |
+| Tailwind CSS | Styling |
+
+---
+
+## DevOps
+
+| Technology | Purpose |
+|------------|---------|
+| Docker | Containerization |
+| Docker Compose | Multi-container orchestration |
+
+---
+
+# Documentation
+
+Additional documentation covers:
+
+- HNSW architecture
+- Graph construction
+- Search algorithm
+- Distance metrics
+- Complexity analysis
+- Index parameters (`M`, `efConstruction`, `efSearch`)
+- Performance characteristics
+- Design trade-offs
+- Known limitations
+- Future improvements
+
+---
+
+# Contributing
+
+Contributions are welcome.
+
+```bash
+# Fork the repository
+
+git checkout -b feature/amazing-feature
+
+# Make your changes
+
+git commit -m "Add amazing feature"
+
+git push origin feature/amazing-feature
+```
+
+Then open a Pull Request.
+
+Please ensure that:
+
+- All tests pass
+- New functionality includes tests
+- Code follows the existing style
+- Public APIs include type hints where applicable
+- Documentation is updated when necessary
 
 ### Contribution Ideas
--  Add more vector distance metrics (Euclidean, Manhattan)
--  Integrate with PostgreSQL for large-scale data
--  Add JWT authentication and rate limiting
--  Build a comparison dashboard (Brute-Force vs HNSW)
--  Add support for more languages (Urdu, Arabic)
+
+- Additional distance metrics (Euclidean, Manhattan, Dot Product)
+- Persistent storage backend
+- PostgreSQL integration
+- Batch indexing
+- JWT authentication
+- Rate limiting
+- Benchmark dashboard
+- Distributed indexing
+- Hybrid search
+- Performance optimizations
 
 ---
 
-## 🎯 Roadmap
+# Roadmap
 
 | Status | Feature |
-| :---: | :--- |
-| ✅ | Brute-Force Engine |
-| ✅ | HNSW Index |
-| ✅ | AI Embeddings |
-| ✅ | REST API |
-| ✅ | Next.js UI |
-| ✅ | Dockerization |
-| ⏳ | PostgreSQL Integration |
-| ⏳ | Authentication & Rate Limiting |
-| ⏳ | Kubernetes Deployment |
-| ⏳ | CI/CD Pipeline |
+|---------|---------|
+| Complete | Brute Force Search |
+| Complete | HNSW Index |
+| Complete | Semantic Search |
+| Complete | AI Embeddings |
+| Complete | FastAPI REST API |
+| Complete | Next.js Frontend |
+| Complete | Docker Support |
+| Complete | Metadata Filtering |
+| Complete | Thread-Safe Operations |
+| Complete | Test Suite |
+| Planned | Persistent Storage |
+| Planned | PostgreSQL Backend |
+| Planned | Authentication |
+| Planned | Rate Limiting |
+| Planned | Hybrid Search |
+| Planned | Benchmark Suite |
+| Planned | CI/CD Pipeline |
+| Planned | Kubernetes Deployment |
 
 ---
 
-## 📄 License
+# License
 
-Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
+This project is distributed under the MIT License.
+
+See the `LICENSE` file for additional information.
 
 ---
 
 <div align="center">
-  <h3>⭐ If you found this useful, please give it a star! ⭐</h3>
-  <br />
-  <p>
-    <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Report Bug</a> ·
-    <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Request Feature</a>
-  </p>
-  <sub>
-    <a href="https://github.com/Sidra-009">GitHub</a>·
-  </sub>
+
+## If you found this project useful, consider giving it a star.
+
+Built by **Sidra**
+
+GitHub: https://github.com/Sidra-009
+
 </div>
