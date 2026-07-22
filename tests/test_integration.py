@@ -93,16 +93,13 @@ class TestHNSWDB:
         db.add([0.7] * 384, "Italian Food")
 
         results = db.search([0.5] * 384, top_k=5)
-        # Post-filter: only keep Pakistani Food
         filtered = []
         for idx, score in results:
             meta = db.get_metadata(idx)
             if meta and "Pakistani" in meta:
                 filtered.append((idx, score))
 
-        # Both Pakistani items should be in results
         assert len(filtered) >= 1
-        # The first Pakistani item should be the closest
         assert "Pakistani" in db.get_metadata(filtered[0][0])
 
 
