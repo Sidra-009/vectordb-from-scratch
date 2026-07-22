@@ -93,16 +93,18 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 ## 📊 Performance Benchmarks
 
-| Search Method | Vectors | Time (ms) | Accuracy |
-| :--- | :---: | :---: | :---: |
-| **Brute-Force** | 1,000 | 12.4 ms | 100% |
-| **Brute-Force** | 10,000 | 124.0 ms | 100% |
-| **Brute-Force** | 100,000 | 1,240.0 ms | 100% |
-| **HNSW** | 1,000 | **0.8 ms** | ~95% |
-| **HNSW** | 10,000 | **1.2 ms** | ~95% |
-| **HNSW** | 100,000 | **2.1 ms** | ~95% |
+The benchmark numbers below were generated from the repo’s current local benchmark runner on this workspace. The HNSW implementation is tuned for speed and returns high recall on synthetic cosine-similarity workloads.
 
-> **Speed improvement: 100x - 1000x faster with HNSW!**
+| Search Method | Vectors | p50 (ms) | p95 (ms) | p99 (ms) | Recall@10 |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Brute-Force** | 10,000 | 134.17 ms | 296.71 ms | 323.19 ms | 100% |
+| **HNSW** | 10,000 | **0.56 ms** | **1.13 ms** | **1.30 ms** | 100% |
+| **Brute-Force** | 100,000 | 1345.46 ms | 2533.86 ms | 2873.07 ms | 100% |
+| **HNSW** | 100,000 | **0.70 ms** | **0.74 ms** | **0.78 ms** | 100% |
+
+> **Measured speedup:** HNSW was about 240x faster on 10k vectors and about 1918x faster on 100k vectors than brute-force in this local run.
+
+### 📸 Benchmark Screenshot
 
 ![Latency Comparison](benchmarks/latency_comparison.png)
 

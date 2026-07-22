@@ -28,7 +28,7 @@ What do these parameters mean?
 Parameter	Value	Explanation
 M	16	Maximum number of bi-directional connections (neighbors) each node can have per layer. Higher M = better accuracy, but more memory and slower insertion. We chose 16 as a balanced default (FAISS also uses 16 for its HNSW default).
 ef_construction	200	Dynamic list size used while building the index. Higher values build a better-quality graph (higher recall), but increase build time. 200 is a sweet spot for up to 100k vectors.
-ef_search	50	Dynamic list size used during a search query. Higher values increase accuracy (recall) but increase search latency. 50 gives ~95% recall at 1-2ms latency on our benchmarks.
+ef_search	50	Dynamic list size used during a search query. Higher values increase accuracy (recall) but increase search latency. The exact recall depends on the dataset and graph quality, so the benchmark script reports the measured Recall@10 directly.
 Trade-off Summary:
 Speed vs Accuracy: Lower ef_search -> faster but less accurate. Higher ef_search -> slower but more accurate.
 
@@ -81,7 +81,7 @@ Drop to Layer 0: From C, explore its neighbors (E, F). Compare Q with all neighb
 Our implementation is built for learning and demonstration. It is not intended to replace FAISS or Pinecone in production. Here are the current limitations:
 
 Limitation	Explanation	Production Alternative
-No Deletion Support	Once a vector is added, it cannot be deleted. The index only grows.	FAISS supports deletion via ID mapping. Pinecone supports delete by ID.
+Delete Support is Basic	The implementation now supports deleting vectors by ID and cleaning up neighbor references. It is still a learning-oriented graph implementation, so production-grade tombstone or rewire strategies would be the next step.
 Single-threaded Build	Index insertion is purely sequential (no parallelization).	FAISS uses OpenMP for multi-threaded builds.
 No Dynamic ef Tuning	ef_search is fixed at 50. In production, you often tune this per-query based on latency SLAs.	Pinecone/Qdrant allow per-query ef override.
 Memory-bound	All vectors and neighbor lists are stored in Python dictionaries (RAM only).	Production systems use memory-mapped files (mmap) or custom C++ allocators.
