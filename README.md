@@ -56,11 +56,11 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 | Aspect | Description |
 | :--- | :--- |
-| 🎓 **Educational** | Step-by-step code with clear comments. Learn HNSW from scratch. |
-| ⚡ **Production-Ready** | Dockerized, thread-safe, with beautiful UI. |
-| 🔬 **Algorithmic** | HNSW graph implemented manually (no black-box libraries). |
-| 🧠 **AI-Powered** | Semantic search using Sentence-Transformers. |
-| 🌐 **Global-Ready** | Works with any language (English, Urdu, Roman Urdu, etc.). |
+|  **Educational** | Step-by-step code with clear comments. Learn HNSW from scratch. |
+| **Production-Ready** | Dockerized, thread-safe, with beautiful UI. |
+| **Algorithmic** | HNSW graph implemented manually (no black-box libraries). |
+| **AI-Powered** | Semantic search using Sentence-Transformers. |
+| **Global-Ready** | Works with any language (English, Urdu, Roman Urdu, etc.). |
 
 ---
 
@@ -68,24 +68,24 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 <table>
   <tr>
-    <td align="center"><b>🧮 Brute-Force Engine</b><br/>100% accurate cosine similarity search <br/><code>O(n)</code> complexity</td>
-    <td align="center"><b>🚀 HNSW Index</b><br/>Fast approximate search <br/><code>O(log n)</code> using multi-layer graphs</td>
+    <td align="center"><b> Brute-Force Engine</b><br/>100% accurate cosine similarity search <br/><code>O(n)</code> complexity</td>
+    <td align="center"><b> HNSW Index</b><br/>Fast approximate search <br/><code>O(log n)</code> using multi-layer graphs</td>
   </tr>
   <tr>
-    <td align="center"><b>🧠 AI Embeddings</b><br/>Converts text to vectors using <br/><code>all-MiniLM-L6-v2</code></td>
-    <td align="center"><b>💾 Persistence</b><br/>JSON + NPY format with <br/>atomic writes & checksums</td>
+    <td align="center"><b> AI Embeddings</b><br/>Converts text to vectors using <br/><code>all-MiniLM-L6-v2</code></td>
+    <td align="center"><b> Persistence</b><br/>JSON + NPY format with <br/>atomic writes & checksums</td>
   </tr>
   <tr>
-    <td align="center"><b>🌐 REST API</b><br/>Swagger UI available at <br/><code>/docs</code></td>
-    <td align="center"><b>🎨 Production UI</b><br/>Next.js frontend with <br/>glassmorphism design</td>
+    <td align="center"><b> REST API</b><br/>Swagger UI available at <br/><code>/docs</code></td>
+    <td align="center"><b> Production UI</b><br/>Next.js frontend with <br/>glassmorphism design</td>
   </tr>
   <tr>
-    <td align="center"><b>🐳 Dockerized</b><br/>Run entire stack with <br/>one command</td>
-    <td align="center"><b>🔍 Metadata Filtering</b><br/>Post-filter search results <br/>by metadata</td>
+    <td align="center"><b> Dockerized</b><br/>Run entire stack with <br/>one command</td>
+    <td align="center"><b> Metadata Filtering</b><br/>Post-filter search results <br/>by metadata</td>
   </tr>
   <tr>
-    <td align="center"><b>🔒 Thread-Safe</b><br/>RLock for concurrent <br/>add/search operations</td>
-    <td align="center"><b>🧪 Tested</b><br/>Pytest suite with <br/>integration & concurrency tests</td>
+    <td align="center"><b> Thread-Safe</b><br/>RLock for concurrent <br/>add/search operations</td>
+    <td align="center"><b> Tested</b><br/>Pytest suite with <br/>integration & concurrency tests</td>
   </tr>
 </table>
 
@@ -112,12 +112,12 @@ Most developers use **Pinecone** or **Qdrant**, but few understand how they work
 
 | Domain | Application |
 | :--- | :--- |
-| 🤖 **AI Chatbots** | RAG (Retrieval-Augmented Generation) systems |
-| 📚 **Document Search** | Search through PDFs, articles, and books |
-| 🎵 **Recommendations** | Content-based recommendations (movies, music) |
-| 🏥 **Healthcare** | Semantic search in medical records |
-| 📈 **Research** | Academic paper similarity search |
-| 🇵🇰 **Localized** | Roman Urdu & Urdu search for Pakistani applications |
+|  **AI Chatbots** | RAG (Retrieval-Augmented Generation) systems |
+|  **Document Search** | Search through PDFs, articles, and books |
+|  **Recommendations** | Content-based recommendations (movies, music) |
+|  **Healthcare** | Semantic search in medical records |
+|  **Research** | Academic paper similarity search |
+|  **Localized** | Roman Urdu & Urdu search for Pakistani applications |
 
 ---
 
@@ -151,7 +151,8 @@ graph LR
     C --> E
     D --> F
     E --> G
-🚀 Quick Start
+```
+Quick Start
 Option 1: Docker (Recommended)
 bash
 git clone https://github.com/Sidra-009/vectordb-from-scratch.git
@@ -281,30 +282,30 @@ HNSW Internals Explained — Deep dive into our HNSW implementation, parameters 
 🤝 Contributing
 Contributions are welcome! Here's how you can help:
 
-🍴 Fork the repository
+Fork the repository
 
-🌿 Create your feature branch (git checkout -b feature/AmazingFeature)
+Create your feature branch (git checkout -b feature/AmazingFeature)
 
-💻 Commit your changes (git commit -m 'Add some AmazingFeature')
+Commit your changes (git commit -m 'Add some AmazingFeature')
 
-📤 Push to the branch (git push origin feature/AmazingFeature)
+Push to the branch (git push origin feature/AmazingFeature)
 
-🔄 Open a Pull Request
+Open a Pull Request
 
 Contribution Ideas
-🔧 Add more vector distance metrics (Euclidean, Manhattan)
+Add more vector distance metrics (Euclidean, Manhattan)
 
-🗄️ Integrate with PostgreSQL for large-scale data
+Integrate with PostgreSQL for large-scale data
 
-🔐 Add JWT authentication and rate limiting
+Add JWT authentication and rate limiting
 
-📊 Build a comparison dashboard (Brute-Force vs HNSW)
+Build a comparison dashboard (Brute-Force vs HNSW)
 
-🌍 Add support for more languages (Urdu, Arabic)
+Add support for more languages (Urdu, Arabic)
 
 🎯 Roadmap
 Status	Feature
-✅	Brute-Force Engine
+	Brute-Force Engine
 ✅	HNSW Index
 ✅	AI Embeddings
 ✅	REST API
@@ -320,4 +321,4 @@ Status	Feature
 📄 License
 Distributed under the MIT License. See LICENSE for more information.
 
-<div align="center"> <h3>⭐ If you found this useful, please give it a star! ⭐</h3> <br /> <p> <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Report Bug</a> · <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Request Feature</a> </p> <br /> <sub>Built with ❤️ by <strong>Sidra</strong></sub> <br /> <sub> <a href="https://github.com/Sidra-009">GitHub</a> · <a href="https://linkedin.com/in/yourprofile">LinkedIn</a> </sub> </div> ```
+<div align="center"> <h3>⭐ If you found this useful, please give it a star! ⭐</h3> <br /> <p> <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Report Bug</a> · <a href="https://github.com/Sidra-009/vectordb-from-scratch/issues">Request Feature</a> </p> <br /> </div> ```
