@@ -28,7 +28,7 @@ def worker_search(db, count):
 
 def test_concurrency():
     """Run concurrent add and search operations."""
-    print("🚀 Starting Concurrency Test...")
+    print("Starting Concurrency Test...")
     db = HNSWDB()
 
     threads = []
